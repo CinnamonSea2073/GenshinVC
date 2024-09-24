@@ -1,0 +1,31 @@
+services:
+  voicevox-engine:
+    container_name: voicevox-engine
+    image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
+    restart: always
+    ports:
+      - "50021:50021"
+    networks:
+      - voicevox-network
+  gvc-app:
+    build: ./bot
+    volumes:
+      - ./bot:/usr/src/bot:rw
+    env_file:
+      - .env
+    environment:
+      - TOKEN=${TOKEN}
+      - TZ=Asia/Tokyo
+    tty: true
+    command: [ "python3", "main.py" ]
+    restart: always
+    ports:
+      - "8084:8084"
+    depends_on:
+      - "voicevox-engine"
+    networks:
+      - voicevox-network
+
+networks:
+  voicevox-network:
+    driver: bridge
